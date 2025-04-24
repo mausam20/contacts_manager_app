@@ -7,7 +7,7 @@ A simple full-stack contact manager app using **FastAPI** for the backend and **
 ## 🚀 Features
 
 - Add new users with name, email, and contact number
-- Search users by name or email (
+- Search users by name or email 
 - Delete users by email
 - SQLite database (auto-creates table if not exists)
 - Proper status codes and validation checks (duplicate users, non-existent deletions)
@@ -23,7 +23,7 @@ pip install fastapi uvicorn sqlalchemy pydantic
 
 ### ▶️ Run the Backend
 ```bash
-uvicorn main:app --reload
+python app.py
 ```
 - API: http://127.0.0.1:8000
 - Swagger UI: http://127.0.0.1:8000/docs
@@ -52,8 +52,6 @@ backend/
 └── requirements.txt  
 
 ```
-
----
 
 ## 🌐 Frontend Setup (HTML/CSS/JavaScript)
 
@@ -100,4 +98,14 @@ app.add_middleware(
 - `404`: Not Found – user doesn't exist on delete
 - `200`: OK – successful fetch or deletion
 
+
+---
+
+## Trade-off
+- There should be more exception handling and validation checks in the backend. 
+- like handling db connection issues, there could be custom response models for errors
+- I could have added pagination in the backend for the search endpoint
+- I could have added the testcases to test the backend
+- I could have added the dockerfile to deploy the backend
+- For frontend I could have used the react or vue.js
 
