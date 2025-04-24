@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+        }
+        header {
+            background: #333;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        main {
+            padding: 2rem;
+            text-align: center;
+        }
+        .btn {
+            padding: 1rem 2rem;
+            margin: 1rem;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        section {
+            display: none;
+            margin-top: 2rem;
+        }
+        form input, form button {
+            margin: 0.5rem;
+            padding: 0.5rem;
+            font-size: 1rem;
+        }
+        table {
+            margin: auto;
+            margin-top: 1rem;
+            width: 80%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Contact Manager</h1>
+    </header>
+    <main>
+        <button class="btn" onclick="showSection('add')">Add User Contact</button>
+        <button class="btn" onclick="showSection('search')">Search User Contact</button>
+        <button class="btn" onclick="showSection('delete')">Delete User Contact</button>
+
+        <!-- Add Section -->
+        <section id="add">
+            <h2>Add Contact</h2>
+            <form onsubmit="addUser(event)">
+                <input type="email" id="add-email" placeholder="Email" required>
+                <input type="text" id="add-name" placeholder="Name" required>
+                <input type="text" id="add-contact" placeholder="Contact" required>
+                <button type="submit">Save</button>
+            </form>
+            <p id="add-response"></p>
+        </section>
+
+        <!-- Search Section -->
+        <section id="search">
+            <h2>Search Contacts</h2>
+            <input type="text" id="search-term" placeholder="Search by name">
+            <button onclick="searchUsers()">Search</button>
+            <table id="search-results"></table>
+            <button onclick="prevPage()">Previous</button>
+            <button onclick="nextPage()">Next</button>
+        </section>
+
+        <!-- Delete Section -->
+        <section id="delete">
+            <h2>Delete Contact</h2>
+            <input type="email" id="delete-email" placeholder="Email">
+            <button onclick="deleteUser()">Delete</button>
+            <p id="delete-response"></p>
+        </section>
+    </main>
+
+    <script>
+        let currentPage = 1;
+        const limit = 5;
+
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(sec => sec.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
+
+        async function addUser(event) {
+            event.preventDefault();
+            const email = document.getElementById('add-email').value;
+            const name = document.getElementById('add-name').value;
+            const contact = document.getElementById('add-contact').value;
+
+            const res = await fetch('http://127.0.0.1:8000/contacts/save', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, name, contact })
+            });
+
+            const data = await res.json();
+            document.getElementById('add-response').innerText = data.name ? 'User added!' : 'Error adding user';
+        }
+
+        async function searchUsers() {
+            const term = document.getElementById('search-term').value;
+            const res = await fetch(`http://localhost:8000/contacts/search/${term}`);
+            const users = await res.json();
+            const paginated = users.slice((currentPage - 1) * limit, currentPage * limit);
+
+            let table = '<tr><th>Email</th><th>Name</th><th>Contact</th></tr>';
+            for (const user of paginated) {
+                table += `<tr><td>${user.email}</td><td>${user.name}</td><td>${user.contact}</td></tr>`;
+            }
+            document.getElementById('search-results').innerHTML = table;
+        }
+
+        function nextPage() {
+            currentPage++;
+            searchUsers();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) currentPage--;
+            searchUsers();
+        }
+
+        async function deleteUser() {
+            const email = document.getElementById('delete-email').value;
+            const res = await fetch(`http://127.0.0.1:8000/contacts/delete/${email}`);
+            const data = await res.json();
+            document.getElementById('delete-response').innerText = data.message || 'Error deleting user';
+        }
+    </script>
+</body>
+</html>
