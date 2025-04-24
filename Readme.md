@@ -23,6 +23,7 @@ pip install fastapi uvicorn sqlalchemy pydantic
 
 ### ▶️ Run the Backend
 ```bash
+pip install -r requirements.txt
 python app.py
 ```
 - API: http://127.0.0.1:8000
